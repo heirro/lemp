@@ -103,7 +103,6 @@ core() {
     echo -e "> ${Yellow}Update and upgrade the system...${Off}"
     sudo apt-get -qq update
     sudo apt upgrade -y &> /dev/null
-    clear
     echo -e "- ${Green}Core Linux updated and upgraded.${Off} ✅"
     echo ""
     echo "For new machine, we recommendation to reboot server before next step. Type 'y' to reboot now."
@@ -119,7 +118,7 @@ install_nginx() {
     else
         tput sc
         echo -e "> ${Yellow}Installing Nginx...${Off}"
-        sudo apt-get -qq install nginx -y > /dev/null
+        sudo apt-get -qq install nginx -y &> /dev/null
         sleep 1
         echo -e "> ${Yellow}Configuring Nginx...${Off}"
         sudo wget -q https://raw.githubusercontent.com/heirro/lemp/master/libs/nginx.conf
@@ -127,6 +126,7 @@ install_nginx() {
         echo ""
         echo -e "> ${Yellow}Restarting Nginx...${Off}"
         sudo systemctl restart nginx
+        sleep 1
         if [ -x "$(command -v nginx)" ]; then
             tput rc
             tput el
@@ -144,7 +144,7 @@ install_mysql() {
     else
         tput sc
         echo -e "> ${Yellow}Installing MySQL${Off}"
-        sudo apt-get -qq install mysql-server -y > /dev/null
+        sudo apt-get -qq install mysql-server -y &> /dev/null
         echo ""
         sleep 1
         if [ -x "$(command -v mysql)" ]; then
@@ -164,7 +164,7 @@ install_php() {
     else
         tput sc
         echo -e "> ${Yellow}Installing PHP${Off}"
-        sudo apt-get -qq install php-fpm php-mysql -y > /dev/null
+        sudo apt-get -qq install php-fpm php-mysql -y &> /dev/null
         echo ""
         sleep 1
         if [ -x "$(command -v php)" ]; then
@@ -180,32 +180,26 @@ install_php() {
 firewall(){
     tput sc
     echo -e "> ${Yellow}Configuring firewall...${Off}"
-    sudo ufw allow OpenSSH > /dev/null
-    echo -e ">> ${Green}Allowing OpenSSH${Off} ✅"
-    sleep 1
-    sudo ufw allow 'Nginx Full' > /dev/null
-    echo -e ">> ${Green}Allowing Nginx${Off} ✅"
-    sleep 1
-    sudo ufw allow ssh > /dev/null
-    echo -e ">> ${Green}Allowing SSH${Off} ✅"
-    sleep 1
-    sudo ufw --force enable
-    echo -e ">> ${Green}Enabled firewall${Off} ✅"
-    echo ""
-    sleep 1
+    sudo ufw allow OpenSSH &> /dev/null
+    sudo ufw allow 'Nginx Full' &> /dev/null
+    sudo ufw allow ssh &> /dev/null
+    sudo ufw --force enable &> /dev/null
     tput rc
     tput el
-    echo -e "- ${Green}Firewall configured.${Off} ✅"
+    echo -e "- ${Green}Allowing OpenSSH${Off} ✅"
+    sleep 1
+    echo -e "- ${Green}Allowing Nginx${Off} ✅"
+    sleep 1
+    echo -e "- ${Green}Allowing SSH${Off} ✅"
+    sleep 1
+    echo -e "- ${Green}Firewall enable${Off} ✅"
     echo ""
 }
 
 php_info(){
-    tput sc
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1
-    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+    sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 &> /dev/null
+    sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1 &> /dev/null
     ip=$(curl -s http://ifconfig.io)
-    tput rc
-    tput el
     echo -e "- ${Green}Default Pages${Off} ✅"
     echo "<?php phpinfo();" > /var/www/html/info.php
     echo "Home: http://${ip}"
