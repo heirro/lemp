@@ -160,9 +160,10 @@ install_php() {
 }
 
 php_info(){
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    sysctl -w net.ipv6.conf.default.disable_ipv6=1
     ip=$(curl -s http://ifconfig.io) > /dev/null
-    sudo wget -q https://github.com/heirro/lemp/blob/master/pages/info.php
-    sudo cp info.php /var/www/html/info.php
+    echo "<?php infophp();" > /var/www/html/info.php
     echo "Home: http://${ip}"
     echo "PHP info: http://${ip}/info.php"
     echo ""
