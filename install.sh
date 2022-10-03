@@ -105,6 +105,7 @@ core() {
     sudo apt upgrade -y &> /dev/null
     echo -e "- ${Green}Core Linux updated and upgraded.${Off} ✅"
     echo ""
+    tput sc
     echo "For new machine, we recommendation to reboot server before next step. Type 'y' to reboot now."
     echo "If you want to continue without reboot or already upgraded before step, type 'n' and press enter."
     read -p "Do you want to reboot now? [y/n]: " answer
