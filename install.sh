@@ -100,16 +100,14 @@ timeout() {
 }
 
 core() {
-    tput sc
     echo -e "> ${Yellow}Update and upgrade the system...${Off}"
     sudo apt-get -qq update
-    sudo apt-get -qq upgrade -y > /dev/null
-    tput rc
-    tput el
+    sudo apt upgrade -y
+    clear
     echo -e "- ${Green}Core Linux updated and upgraded.${Off} ✅"
     echo ""
-    tput sc
-    echo "For new machine, we recommendation to reboot server before next step."
+    echo "For new machine, we recommendation to reboot server before next step. Type 'y' to reboot now."
+    echo "If you want to continue without reboot or already upgraded before step, type 'n' and press enter."
     read -p "Do you want to reboot now? [y/n]: " answer
 }
 
