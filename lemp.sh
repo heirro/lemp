@@ -160,7 +160,12 @@ install_php() {
 }
 
 php_info(){
-    echo php_info() > /var/www/htmlinfo.php
+    ip=$(curl -s http://ifconfig.io) > /dev/null
+    sudo wget -q https://github.com/heirro/lemp/blob/master/pages/info.php
+    sudo cp info.php /var/www/html/info.php
+    echo "Home: http://${ip}"
+    echo "PHP info: http://${ip}/info.php"
+    echo ""
 }
 
 welcome
@@ -168,3 +173,4 @@ core
 install_nginx
 install_mysql
 install_php
+php_info
