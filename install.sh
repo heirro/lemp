@@ -102,7 +102,7 @@ timeout() {
 core() {
     echo -e "> ${Yellow}Update and upgrade the system...${Off}"
     sudo apt-get -qq update
-    sudo apt upgrade -y
+    sudo apt upgrade -y &> /dev/null
     clear
     echo -e "- ${Green}Core Linux updated and upgraded.${Off} ✅"
     echo ""
@@ -177,20 +177,6 @@ install_php() {
     fi
 }
 
-php_info(){
-    tput sc
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1
-    sysctl -w net.ipv6.conf.default.disable_ipv6=1
-    ip=$(curl -s http://ifconfig.io)
-    tput rc
-    tput el
-    echo -e "- ${Green}Default Pages${Off} ✅"
-    echo "<?php phpinfo();" > /var/www/html/info.php
-    echo "Home: http://${ip}"
-    echo "PHP info: http://${ip}/info.php"
-    echo ""
-}
-
 firewall(){
     tput sc
     echo -e "> ${Yellow}Configuring firewall...${Off}"
@@ -210,6 +196,20 @@ firewall(){
     tput rc
     tput el
     echo -e "- ${Green}Firewall configured.${Off} ✅"
+    echo ""
+}
+
+php_info(){
+    tput sc
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+    ip=$(curl -s http://ifconfig.io)
+    tput rc
+    tput el
+    echo -e "- ${Green}Default Pages${Off} ✅"
+    echo "<?php phpinfo();" > /var/www/html/info.php
+    echo "Home: http://${ip}"
+    echo "PHP info: http://${ip}/info.php"
     echo ""
 }
 
