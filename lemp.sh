@@ -168,6 +168,26 @@ php_info(){
     echo ""
 }
 
+firewall(){
+    tput sc
+    echo -e "> ${Yellow}Configuring firewall...${Off}"
+    echo "Allow OpenSSH"
+    sudo ufw allow OpenSSH
+    echo "Allow Nginx Full"
+    sudo ufw allow 'Nginx Full'
+    echo "Allow ssh"
+    sudo ufw allow ssh
+    echo "Enable firewall"
+    sudo ufw enable
+    sudo ufw status
+    echo ""
+    sleep 1
+    tput rc
+    tput el
+    echo -e "- ${Green}Firewall configured.${Off} ✅"
+    echo ""
+}
+
 welcome
 core
 install_nginx
