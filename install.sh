@@ -88,15 +88,29 @@ welcome() {
     sleep 1
 }
 
+timeout() {
+    tput sc
+    time=$1; while [ $time -ge 0 ]; do
+        tput rc; tput el
+        printf "$2" $time
+        ((time--))
+        sleep 1
+    done
+    sudo shutdown -r now
+}
+
 core() {
     tput sc
     echo -e "> ${Yellow}Update and upgrade the system...${Off}"
-    sudo apt-get -qq update && apt-get -qq upgrade -y
+    sudo apt-get -qq update
+    sudo apt-get -qq upgrade -y > /dev/null
     tput rc
     tput el
     echo -e "- ${Green}Core Linux updated and upgraded.${Off} ✅"
-    apt list --upgradable
     echo ""
+    tput sc
+    echo "For new machine, we recommendation to reboot server before next step."
+    read -p "Do you want to reboot now? [y/n]: " answer
 }
 
 install_nginx() {
@@ -109,6 +123,12 @@ install_nginx() {
         echo -e "> ${Yellow}Installing Nginx...${Off}"
         sudo apt-get -qq install nginx -y > /dev/null
         sleep 1
+        echo -e "> ${Yellow}Configuring Nginx...${Off}"
+        sudo wget -q https://raw.githubusercontent.com/heirro/lemp/master/libs/nginx.conf
+        sudo mv nginx.conf /etc/nginx/sites-available/default
+        echo ""
+        echo -e "> ${Yellow}Restarting Nginx...${Off}"
+        sudo systemctl restart nginx
         if [ -x "$(command -v nginx)" ]; then
             tput rc
             tput el
@@ -160,10 +180,14 @@ install_php() {
 }
 
 php_info(){
+    tput sc
     sysctl -w net.ipv6.conf.all.disable_ipv6=1
     sysctl -w net.ipv6.conf.default.disable_ipv6=1
-    ip=$(curl -s http://ifconfig.io) > /dev/null
-    echo "<?php infophp();" > /var/www/html/info.php
+    ip=$(curl -s http://ifconfig.io)
+    tput rc
+    tput el
+    echo -e "- ${Green}Default Pages${Off} ✅"
+    echo "<?php phpinfo();" > /var/www/html/info.php
     echo "Home: http://${ip}"
     echo "PHP info: http://${ip}/info.php"
     echo ""
@@ -172,15 +196,17 @@ php_info(){
 firewall(){
     tput sc
     echo -e "> ${Yellow}Configuring firewall...${Off}"
-    echo "Allow OpenSSH"
-    sudo ufw allow OpenSSH
-    echo "Allow Nginx Full"
-    sudo ufw allow 'Nginx Full'
-    echo "Allow ssh"
-    sudo ufw allow ssh
-    echo "Enable firewall"
-    sudo ufw enable
-    sudo ufw status
+    sudo ufw allow OpenSSH > /dev/null
+    echo -e ">> ${Green}Allowing OpenSSH${Off} ✅"
+    sleep 1
+    sudo ufw allow 'Nginx Full' > /dev/null
+    echo -e ">> ${Green}Allowing Nginx${Off} ✅"
+    sleep 1
+    sudo ufw allow ssh > /dev/null
+    echo -e ">> ${Green}Allowing SSH${Off} ✅"
+    sleep 1
+    sudo ufw --force enable
+    echo -e ">> ${Green}Enabled firewall${Off} ✅"
     echo ""
     sleep 1
     tput rc
@@ -191,7 +217,18 @@ firewall(){
 
 welcome
 core
+case ${answer:0:1} in
+    y|Y )
+        timeout 3 "Will reboot in %s"
+        echo ""
+    ;;
+    * )
+tput rc
+tput el
 install_nginx
 install_mysql
 install_php
+firewall
 php_info
+    ;;
+esac
